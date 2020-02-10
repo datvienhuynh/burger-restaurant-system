@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<form method="POST">
+	<button name="check_id" type="submit"> Check Order Status </button>
+	<button name="base_order" type="submit"> Base Burger </button>
+	<button name="custom_order" type="submit"> Custom Burger </button>
+</form><br>
+
+{% if check %}
+<div>
+	<form method="POST">
+		<input name="order_id" value="{{order_id}}"/> Order ID <br>
+		{% if error %}
+			<font size ="3" color="red"> {{ error }} </font><br>
+		{% endif %}
+		<button name="check_id" type="submit"> Check </button>
+	</form>
+</div>
+{% endif %}
+
+{% if status %} Your Order Status:
+<div>
+	<font size ="5" color="green"> {{ status }} </font>
+</div>
+{% endif %}
+
+{% if check_out_error %}
+	<font size ="3" color="red"> {{ check_out_error }} </font><br>
+{% endif %}
+
+{% if base_menu and side_menu and drink_menu and dessert_menu %}
+<div>
+	{% if mains or sides_drinks %}
+		{% for item in mains %}
+			{{ item.__str__() }}<br>
+		{% endfor %}
+		{% for item in sides_drinks %}
+			{{ item.__str__() }}<br>
+		{% endfor %}
+	{% endif %}
+	
+	<form method="POST">
+		{% if total %}
+			<br><font size ="4" color="red"> Total price: ${{ total }} </font><br>
+			{% if error %}
+				{{ error }}
+			{% else %}
+				<button name="make_order" type="submit"> Make Order </button>
+			{% endif %}
+			<button name="clear_order" type="submit"> Clear All </button><br><br>
+		{% endif %}
+		
+		<table align="center" id="base_table">
+			<col width="200">
+			<col width="310">
+			<col width="150">
+			<col width="150">
+			<col width="150">
+				
+			<tr>
+				<th><font size ="3" color="red"> BASE </font></th>
+				<th><font size ="3" color="red"> INGREDIENT </font></th>
+				<th><font size ="3" color="red"> CALORIES </font></th>
+				<th><font size ="3" color="red"> PRICE </font></th>
+				<th><font size ="3" color="red"> QUANTITY </font></th>
+			</tr>
+			{% for item in base_menu %}
+			<tr>
+				<td align="center"> {{ item.name }} </td>
+				<td align="center"> {{ item.__str__() }} </td>
+				<td align="center"> {{ item.calc_calories() }} </td>
+				<td align="center"> ${{ item.calc_price() }} </td>
+				<td align="center">
+					<input type="number" min="0" max="10" id="{{ item.name }}" name="{{ item.name }}" value="0"/>
+				</td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="center">
+					<button name="add_base" type="submit"> Add Base Burger </button>
+				</td>
+			</tr>
+			
+			<tr>
+				<th><font size ="3" color="red"> SIDE </font></th>
+				<th><font size ="3" color="red"> SIZE </font></th>
+				<th><font size ="3" color="red"> CALORIES </font></th>
+				<th><font size ="3" color="red"> PRICE </font></th>
+				<th><font size ="3" color="red"> QUANTITY </font></th>
+			</tr>
+			{% for item in side_menu %}
+			<tr>
+				<td align="center"> {{ item.name }} </td>
+				<td align="center"> {{ item.size }} </td>
+				<td align="center"> {{ item.calories }} </td>
+				<td align="center"> ${{ item.price }} </td>
+				<td align="center">
+					<input type="number" min="0" max="10" value="0" name="{{ item.name }}_{{ item.size }}"/>
+				</td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="center">
+					<button name="add_sides_base" type="submit"> Add Sides </button>
+				</td>
+			</tr>
+			
+			<tr>
+				<th><font size ="3" color="red"> DRINK </font></th>
+				<th><font size ="3" color="red"> SIZE </font></th>
+				<th><font size ="3" color="red"> CALORIES </font></th>
+				<th><font size ="3" color="red"> PRICE </font></th>
+				<th><font size ="3" color="red"> QUANTITY </font></th>
+			</tr>
+			{% for item in drink_menu %}
+			<tr>
+				<td align="center"> {{ item.name }} </td>
+				<td align="center"> {{ item.size }} </td>
+				<td align="center"> {{ item.calories }} </td>
+				<td align="center"> ${{ item.price }} </td>
+				<td align="center">
+					<input type="number" min="0" max="10" value="0" name="{{ item.name }}_{{ item.size }}"/>
+				</td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="center">
+					<button name="add_sides_base" type="submit"> Add Drinks </button>
+				</td>
+			</tr>
+			
+			<tr>
+				<th><font size ="3" color="red"> DESSERT </font></th>
+				<th><font size ="3" color="red"> SIZE </font></th>
+				<th><font size ="3" color="red"> CALORIES </font></th>
+				<th><font size ="3" color="red"> PRICE </font></th>
+				<th><font size ="3" color="red"> QUANTITY </font></th>
+			</tr>
+			{% for item in dessert_menu %}
+			<tr>
+				<td align="center"> {{ item.name }} </td>
+				<td align="center"> {{ item.size }} </td>
+				<td align="center"> {{ item.calories }} </td>
+				<td align="center"> ${{ item.price }} </td>
+				<td align="center">
+					<input type="number" min="0" max="10" value="0" name="{{ item.name }}_{{ item.size }}"/>
+				</td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="center">
+					<button name="add_sides_base" type="submit"> Add Desserts </button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+{% endif %}
+<style>
+	#base_table tr:nth-child(even) {background-color: #f2f2f2;}
+	#base_table tr:hover {background-color: #ddd}
+</style>
+
+{% if (mains or sides_drinks) and total and base_menu == null and ingredient_menu == null %}
+<div>
+	{% for item in mains %}
+		{{ item.__str__() }}<br>
+	{% endfor %}
+	{% for item in sides_drinks %}
+		{{ item.__str__() }}<br>
+	{% endfor %}
+	<form method="POST">
+		<font size ="4" color="red"> Total price: ${{ total }} </font><br><br>
+		<button name="checkout" type="submit"> Checkout </button>
+		<button name="base_order" type="submit"> Add More </button>
+	</form>
+</div>
+{% endif %}
+
+{% if ingredient_menu and sides_name and drinks_name and desserts_name %}
+<div>
+	{% if error %}
+		<font color="red"> {{ error }} </font>
+		<style>
+			#Bun {
+				border-color:red;
+			}
+			#Sandwich {
+				border-color:red;
+			}
+		</style>
+	{% endif %}
+	{% if errorList %}
+		{% for msg in errorList.values() %}
+		<font color="red">{{msg}}</font>
+		{% endfor %}
+	{% endif %}
+	{% if mains or sides_drinks %}
+		{% for item in mains %}
+			{{ item.__str__() }}<br>
+		{% endfor %}
+		{% for item in sides_drinks %}
+			{{ item.__str__() }}<br>
+		{% endfor %}
+	{% endif %}
+	
+	<form method="POST">
+		{% if total %}
+			<br><font size ="4" color="red"> Total price: ${{ total }} </font><br>
+			<button name="make_order" type="submit"> Make Order </button>
+			<button name="clear_order" type="submit"> Clear All </button><br><br>
+		{% endif %}
+		
+		<table align="center" id="custom_table">
+			<col width="200">
+			<col width="310">
+			<col width="150">
+			<col width="150">
+			<col width="150">
+				
+			<tr>
+				<th><font size ="3" color="red"> INGREDIENT </font></th>
+				<th><font size ="3" color="red"> SIZE </font></th>
+				<th><font size ="3" color="red"> CALORIES </font></th>
+				<th><font size ="3" color="red"> PRICE </font></th>
+				<th><font size ="3" color="red"> QUANTITY </font></th>
+			</tr>
+
+			{% for item in ingredient_menu %}
+			<tr>
+				<td align="center"> {{ item.name }} </td>
+				<td></td>
+				<td align="center"> {{ item.calories }} </td>
+				<td align="center"> ${{ item.price }} </td>
+				{% if item.name == "Bun" %}
+					<td align="center">
+						<input type="number" min="0" max="4" id="{{item.name}}" name="{{item.name}}" value="{{ingredient_qty[item.name]}}"/>
+					</td>
+				{% elif item.name == "Sandwich" %}
+					<td align="center">
+						<input type="number" min="0" max="2" id="{{item.name}}" name="{{item.name}}" value="{{ingredient_qty[item.name]}}"/>
+					</td>
+				{% else %}
+					<td align="center">
+						<input type="number" min="0" max="10" id="{{item.name}}" name="{{item.name}}" value="{{ingredient_qty[item.name]}}"/>
+					</td>
+				{% endif %}
+			</tr>
+			{% endfor %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="center">
+					<button name="add_custom" type="submit"> Add Custom Burger </button>
+				</td>
+			</tr>
+			
+			<tr>
+				<th><font size ="3" color="red"> SIDE </font></th>
+				<th><font size ="3" color="red"> SIZE </font></th>
+				<th><font size ="3" color="red"> CALORIES </font></th>
+				<th><font size ="3" color="red"> PRICE </font></th>
+				<th><font size ="3" color="red"> QUANTITY </font></th>
+			</tr>
+			{% for item, value in sides_name.items() %}
+			<tr>
+				<td align="center"> {{ item.name }} </td>
+				<td align="center"> {{ item.size }} </td>
+				<td align="center"> {{ item.calories }} </td>
+				<td align="center"> ${{ item.price }} </td>
+				<td align="center">
+					<input type="number" min="0" max="10" value="{{sides_qty[value]}}" name="{{item.name}}_{{item.size}}"/>
+				</td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="center">
+					<button name="add_sides" type="submit"> Add Sides </button>
+				</td>
+			</tr>
+
+			<tr>
+				<th><font size ="3" color="red"> DRINK </font></th>
+				<th><font size ="3" color="red"> SIZE </font></th>
+				<th><font size ="3" color="red"> CALORIES </font></th>
+				<th><font size ="3" color="red"> PRICE </font></th>
+				<th><font size ="3" color="red"> QUANTITY </font></th>
+			</tr>
+			{% for item, value in drinks_name.items() %}
+			<tr>
+				<td align="center"> {{ item.name }} </td>
+				<td align="center"> {{ item.size }} </td>
+				<td align="center"> {{ item.calories }} </td>
+				<td align="center"> ${{ item.price }} </td>
+				<td align="center">
+					<input type="number" min="0" max="10" value="{{drinks_qty[value]}}" name="{{item.name}}_{{item.size}}"/>
+				</td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="center">
+					<button name="add_drinks" type="submit"> Add Drinks </button>
+				</td>
+			</tr>
+			<tr></tr>
+			
+			<tr>
+				<th><font size ="3" color="red"> DESSERT </font></th>
+				<th><font size ="3" color="red"> SIZE </font></th>
+				<th><font size ="3" color="red"> CALORIES </font></th>
+				<th><font size ="3" color="red"> PRICE </font></th>
+				<th><font size ="3" color="red"> QUANTITY </font></th>
+			</tr>
+			{% for item, value in desserts_name.items() %}
+			<tr>
+				<td align="center"> {{ item.name }} </td>
+				<td align="center"> {{ item.size }} </td>
+				<td align="center"> {{ item.calories }} </td>
+				<td align="center"> ${{ item.price }} </td>
+				<td align="center">
+					<input type="number" min="0" max="10" value="{{desserts_qty[value]}}" name="{{item.name}}_{{item.size}}"/>
+				</td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="center">
+					<button name="add_dessert" type="submit"> Add Dessert </button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+{% endif %}
+<style>
+	#custom_table tr:nth-child(even){background-color: #f2f2f2;}
+	#custom_table tr:hover {background-color: #ddd}
+</style>
+
+{% endblock %}

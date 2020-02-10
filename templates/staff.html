@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+	
+	<head>
+		<title> STAFF </title>
+	</head>
+	
+	<body align="center">
+		
+		<a href="{{ url_for('staff') }}"> STAFF </a><br>
+		<img src="https://stuckinthekitchen.com/wordpress/wp-content/uploads/2018/02/breakfast-burger2.jpg" width="240px" height="360px"/>
+		<img src="https://www.amicella.de/fileadmin/_processed_/f/d/csm_Don-Quijote-Burger-mit-Manchego-Patty_92_Burger_Gold_00e16efeac.jpg" width="240px" height="360px"/>
+		<img src="https://i.pinimg.com/564x/d8/f3/ab/d8f3ab494cdef1fd0822bcdde8b29905.jpg" width="240px" height="360px"/>
+		<img src="http://anisasabet.com.au/wp-content/uploads/2018/04/Portuguese-Chicken-Burger-Anisa-Sabet-The-Macadames-26-960x1440.jpg" width="240px" height="360px"/>
+		<br/><br>
+		
+		<form method="POST">
+			<button name="order_list" type="submit"> Order List </button>
+			<button name="all_stock" type="submit"> All Stock </button>
+			<button name="low_stock" type="submit"> Low Stock </button>
+			<button name="add_ingredient" type="submit"> Add Ingredient </button>
+		</form><br>
+		
+		{% if error %}
+			<font size="3" color="red"> {{ error }} </font>
+		{% endif %}
+		
+		{% if confirm %}
+			<font size="3" color="green"> {{ confirm }} </font>
+		{% endif %}
+		
+		{% if orders %}
+		<form method="POST">
+			<table align="center" id="order_table">
+				<col width="100">
+				<col width="310">
+				<col width="150">
+				<col width="150">
+				<col width="150">
+				<col width="100">
+									
+				<tr>
+					<th><font size ="3" color="red"> ID </font></th>
+					<th><font size ="3" color="red"> DETAILS </font></th>
+					<th><font size ="3" color="red"> PRICE </font></th>
+					<th><font size ="3" color="red"> TIME </font></th>
+					<th><font size ="3" color="red"> STATUS </font></th>
+					<th><font size ="3" color="red"> UPDATE </font></th>
+				</tr>
+				{% for order in orders %}
+				<tr>
+					<td align="center"> {{ order.id }} </td>
+					<td align="center">
+						{% for item in order.mains %}
+							{{ item.__str__() }}<br>
+						{% endfor %}
+						{% for item in order.sides_drinks %}
+							{{ item.__str__() }}<br>
+						{% endfor %}
+					</td>
+					<td align="center"> ${{ order.calc_price() }} </td>
+					<td align="center"> {{ order.order_time }} </td>
+					<td align="center"> {{ order.status }} </td>
+					<td align="center">
+						<button name="update_status" value="{{ order.id }}" type="submit"> Update Status </button>
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</form>
+		<style>
+			#order_table tr:nth-child(even) {background-color: #f2f2f2;}
+			#order_table tr:hover {background-color: #ddd}
+		</style>
+		{% endif %}
+		
+		{% if ingredient_list or side_list or drink_list or dessert_list %}
+		<form method="POST">
+			<table align="center" id="all_stock">
+				<col width="260">
+				<col width="150">
+				<col width="150">
+				<col width="150">
+				<col width="150">
+				<col width="100">
+				<tr>
+					<th><font size ="3" color="red"> INGREDIENT </font></th>
+					<th><font size ="3" color="red"> CALORIES </font></th>
+					<th><font size ="3" color="red"> PRICE </font></th>
+					<th><font size ="3" color="red"> QUANTITY </font></th>
+					<th><font size ="3" color="red"> REFILL </font></th>
+					<th><font size ="3" color="red"> REMOVE </font></th>
+				</tr>
+				{% for item, qty in ingredient_list.items() %}
+				<tr>
+					<td align="center"> {{ item.name }} </td>
+					<td align="center"> {{ item.calories }} </td>
+					<td align="center"> ${{ item.price }} </td>
+					<td align="center"> {{ qty }} </td>
+                    <td align="center">
+                        <input type="number" min="0" value="0" name="{{ item.name }}"/>
+                    </td>
+					<td align="center">
+						<button name="delete" value="{{ item.name }}" type="submit"> Delete </button>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td align="center">
+						<button name="refill_all" type="submit"> Refill </button>
+					</td>
+				</tr>
+			</table>
+				
+			<table align="center" id="all_stock">
+				<col width="260">
+				<col width="225">
+				<col width="225">
+				<col width="150">
+				<col width="100">
+				<tr>
+					<th><font size ="3" color="red"> SIDE </font></th>
+					<th><font size ="3" color="red"> FEATURE </font></th>
+					<th><font size ="3" color="red"> QUANTITY </font></th>
+					<th><font size ="3" color="red"> REFILL </font></th>
+					<th><font size ="3" color="red"> REMOVE </font></th>
+				</tr>
+				{% for item, qty in side_list.items() %}
+				<tr>
+					<td align="center"> {{ item.name }} </td>
+					<td align="center"> {{ item.size }} </td>
+					<td align="center"> {{ qty }} </td>
+                    <td align="center">
+                        <input type="number" min="0" value="0" name="{{ item.name }}"/>
+                    </td>
+					<td align="center">
+						<input hidden name="size" value="{{ item.size }}"/>
+						<button name="delete" value="{{ item.name }}" type="submit"> Delete </button>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td align="center">
+						<button name="refill_all" type="submit"> Refill </button>
+					</td>
+				</tr>
+				
+				<tr>
+					<th><font size ="3" color="red"> DRINK </font></th>
+					<th><font size ="3" color="red"> FEATURE </font></th>
+					<th><font size ="3" color="red"> QUANTITY </font></th>
+					<th><font size ="3" color="red"> REFILL </font></th>
+					<th><font size ="3" color="red"> REMOVE </font></th>
+				</tr>
+				{% for item, qty in drink_list.items() %}
+				<tr>
+					<td align="center"> {{ item.name }} </td>
+					<td align="center"> {{ item.size }} </td>
+					<td align="center"> {{ qty }} </td>
+                    <td align="center">
+                        <input type="number" min="0" value="0" name="{{ item.name }}_{{ item.size }}"/>
+                    </td>
+					<td align="center">
+						<input hidden name="size" value="{{ item.size }}"/>
+						<button name="delete" value="{{ item.name }}" type="submit"> Delete </button>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td align="center">
+						<button name="refill_drink_all" type="submit"> Refill </button>
+					</td>
+				</tr>
+				
+				<tr>
+					<th><font size ="3" color="red"> DESSERT </font></th>
+					<th><font size ="3" color="red"> FEATURE </font></th>
+					<th><font size ="3" color="red"> QUANTITY </font></th>
+					<th><font size ="3" color="red"> REFILL </font></th>
+					<th><font size ="3" color="red"> REMOVE </font></th>
+				</tr>
+				{% for item, qty in dessert_list.items() %}
+				<tr>
+					<td align="center"> {{ item.name }} </td>
+					<td align="center"> {{ item.size }} </td>
+					<td align="center"> {{ qty }} </td>
+                    <td align="center">
+                        <input type="number" min="0" value="0" name="{{ item.name }}"/>
+                    </td>
+					<td align="center">
+						<input hidden name="size" value="{{ item.size }}"/>
+						<button name="delete" value="{{ item.name }}" type="submit"> Delete </button>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td align="center">
+						<button name="refill_all" type="submit"> Refill </button>
+					</td>
+				</tr>
+			</table>
+			<style>
+				#all_stock tr:nth-child(even) {background-color: #f2f2f2;}
+				#all_stock tr:hover {background-color: #ddd}
+			</style>
+		</form>
+		{% endif %}
+		
+		{% if ingredient_low or side_low or drink_low or dessert_low %}
+		<form method="POST">
+			<table align="center" id="low_stock">
+				<col width="260">
+				<col width="225">
+				<col width="225">
+				<col width="250">
+				{% if ingredient_low|length > 0 %}
+				<tr>
+					<th><font size ="3" color="red"> INGREDIENT </font></th>
+					<th><font size ="3" color="red"> CALORIES </font></th>
+					<th><font size ="3" color="red"> QUANTITY </font></th>
+					<th><font size ="3" color="red"> REFILL </font></th>
+				</tr>
+				{% for item, qty in ingredient_low.items() %}
+				<tr>
+					<td align="center"> {{ item.name }} </td>
+					<td align="center"> {{ item.calories }} </td>
+					<td align="center"> {{ qty }} </td>
+					<td align="center">
+						<input type="number" min="0" value="0" name="{{ item.name }}"/>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td align="center">
+						<button name="refill" type="submit"> Refill </button>
+					</td>
+				</tr>
+				{% endif %}
+			
+				{% if side_low|length > 0 %}
+				<tr>
+					<th><font size ="3" color="red"> SIDE </font></th>
+					<th><font size ="3" color="red"> FEATURE </font></th>
+					<th><font size ="3" color="red"> QUANTITY </font></th>
+					<th><font size ="3" color="red"> REFILL </font></th>
+				</tr>
+				{% for item, qty in side_low.items() %}
+				<tr>
+					<td align="center"> {{ item.name }} </td>
+					<td align="center"> {{ item.size }} </td>
+					<td align="center"> {{ qty }} </td>
+					<td align="center">
+						<input type="number" min="0" value="0" name="{{ item.name }}"/>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td align="center">
+						<button name="refill" type="submit"> Refill </button>
+					</td>
+				</tr>
+				{% endif %}
+				
+				{% if drink_low|length > 0 %}
+				<tr>
+					<th><font size ="3" color="red"> DRINK </font></th>
+					<th><font size ="3" color="red"> FEATURE </font></th>
+					<th><font size ="3" color="red"> QUANTITY </font></th>
+					<th><font size ="3" color="red"> REFILL </font></th>
+				</tr>
+				{% for item, qty in drink_low.items() %}
+				<tr>
+					<td align="center"> {{ item.name }} </td>
+					<td align="center"> {{ item.size }} </td>
+					<td align="center"> {{ qty }} </td>
+					<td align="center">
+						<input type="number" min="0" value="0" name="{{ item.name }}_{{ item.size }}"/>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td align="center">
+						<button name="refill_drink" type="submit"> Refill </button>
+					</td>
+				</tr>
+				{% endif %}
+				
+				{% if dessert_low|length > 0 %}
+				<tr>
+					<th><font size ="3" color="red"> DESSERT </font></th>
+					<th><font size ="3" color="red"> FEATURE </font></th>
+					<th><font size ="3" color="red"> QUANTITY </font></th>
+					<th><font size ="3" color="red"> REFILL </font></th>
+				</tr>
+				{% for item, qty in dessert_low.items() %}
+				<tr>
+					<td align="center"> {{ item.name }} </td>
+					<td align="center"> {{ item.size }} </td>
+					<td align="center"> {{ qty }} </td>
+					<td align="center">
+						<input type="number" min="0" value="0" name="{{ item.name }}"/>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td align="center">
+						<button name="refill" type="submit"> Refill </button>
+					</td>
+				</tr>
+				{% endif %}
+			</table>
+			<style>
+				#low_stock tr:nth-child(even) {background-color: #f2f2f2;}
+				#low_stock tr:hover {background-color: #ddd}
+			</style>
+		</form>
+		{% endif %}
+		
+		{% if add_ingredient %}
+		<div>
+			<form method="POST">
+				<input name="name" value="{{ name }}"/> Name <br>
+				{% if errors and errors["name"] != '' %}
+					<font size ="3" color="red">{{ errors["name"] }}</font><br>
+				{% endif %}
+				
+				<input name="price" type="number" min="0" step="0.5" value="{{ price }}"/> Price <br>
+				{% if errors and errors["price"] != '' %}
+					<font size ="3" color="red">{{ errors["price"] }}</font><br>
+				{% endif %}
+				
+				<input name="calories" type="number" min="0" step="0.5" value="{{ calories }}"/> Calories <br>
+				{% if errors and errors["calories"] != '' %}
+					<font size ="3" color="red">{{ errors["calories"] }}</font><br>
+				{% endif %}
+				
+				<input name="decrement_qty" type="number" min="0" step="0.5" value="{{ decrement_qty }}"/> Decrement Quantity <br>
+				{% if errors and errors["decrement_qty"] != '' %}
+					<font size ="3" color="red">{{ errors["decrement_qty"] }}</font><br>
+				{% endif %}
+				
+				<input name="stock_qty" type="number" min="0" step="0.5" value="{{stock_qty}}"/> Stock Quantity <br>
+				{% if errors and errors["stock_qty"] != '' %}
+					<font size ="3" color="red">{{ errors["stock_qty"] }}</font><br>
+				{% endif %}
+				
+				<button name="confirm" type="submit"> Confirm </button>
+			</form>
+		</div>
+		{% endif %}
+	</body>
+</html>
+
+
+
